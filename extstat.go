@@ -6,9 +6,10 @@ import (
 )
 
 type ExtraStat struct {
-	AccessTime  time.Time
-	ModTime     time.Time
-	CreatedTime time.Time
+	AccessTime time.Time
+	ModTime    time.Time
+	ChangeTime time.Time
+	BirthTime  time.Time
 }
 
 func NewFromFileName(name string) (*ExtraStat, error) {

@@ -13,8 +13,9 @@ func timespecToTime(ts syscall.Timespec) time.Time {
 func New(fi os.FileInfo) *ExtraStat {
 	osStat := fi.Sys().(*syscall.Stat_t)
 	return &ExtraStat{
-		AccessTime:  timespecToTime(osStat.Atim),
-		ModTime:     fi.ModTime(),
-		CreatedTime: timespecToTime(osStat.Ctim),
+		AccessTime: timespecToTime(osStat.Atim),
+		ModTime:    fi.ModTime(),
+		ChangeTime: timespecToTime(osStat.Ctim),
+		BirthTime:  fi.ModTime(),
 	}
 }

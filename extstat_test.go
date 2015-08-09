@@ -3,9 +3,9 @@ package extstat
 import (
 	"io/ioutil"
 	"os"
+	"runtime"
 	"testing"
 	"time"
-	"runtime"
 )
 
 var filePath string = "test.txt"
@@ -19,12 +19,12 @@ func TestNew(t *testing.T) {
 	defer os.Remove(filePath)
 	now := time.Now()
 
-	ctimeBefore := now.Add(+time.Second)
-	ctimeAfter :=  now.Add(-time.Second)
-	mtimeBefore := now.Add(time.Second*4)
-	mtimeAfter := now.Add(time.Second*2)
-	atimeBefore := now.Add(time.Second*7)
-	atimeAfter := now.Add(time.Second*5)
+	btimeBefore := now.Add(+time.Second)
+	btimeAfter := now.Add(-time.Second)
+	mtimeBefore := now.Add(time.Second * 4)
+	mtimeAfter := now.Add(time.Second * 2)
+	atimeBefore := now.Add(time.Second * 7)
+	atimeAfter := now.Add(time.Second * 5)
 
 	t.Log("wait for changing mtime...")
 	time.Sleep(time.Second * 3)
@@ -56,11 +56,14 @@ func TestNew(t *testing.T) {
 
 	// plan9 doesn't have correct ctime attribute
 	if runtime.GOOS != "plan9" {
-		if !extStat.CreatedTime.Before(ctimeBefore) || !extStat.CreatedTime.After(ctimeAfter) {
-			t.Error("ctime is wrong:", ctimeAfter, "<", extStat.CreatedTime, "<", ctimeBefore, "  now: ", now)
+		if !extStat.BirthTime.Before(btimeBefore) || !extStat.BirthTime.After(btimeAfter) {
+			t.Error("btime is wrong:", btimeAfter, "<", extStat.BirthTime, "<", btimeBefore, "  now: ", now)
 		}
 	}
 	if !extStat.ModTime.Before(mtimeBefore) || !extStat.ModTime.After(mtimeAfter) {
+		t.Error("mtime is wrong:", mtimeAfter, "<", extStat.ModTime, "<", mtimeBefore, "  now: ", now)
+	}
+	if !extStat.ModTime.Before(mtimeBefore) || !extStat.ChangeTime.After(mtimeAfter) {
 		t.Error("mtime is wrong:", mtimeAfter, "<", extStat.ModTime, "<", mtimeBefore, "  now: ", now)
 	}
 	if !extStat.AccessTime.Before(atimeBefore) || !extStat.AccessTime.After(atimeAfter) {
