@@ -15,6 +15,6 @@ func New(fi os.FileInfo) *ExtraStat {
 	return &ExtraStat{
 		AccessTime:  timespecToTime(osStat.Atimespec),
 		ModTime:     fi.ModTime(),
-		CreatedTime: timespecToTime(osStat.Ctimespec),
+		CreatedTime: timespecToTime(osStat.Birthtimespec),
 	}
 }
