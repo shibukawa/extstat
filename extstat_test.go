@@ -62,9 +62,9 @@ func TestNew(t *testing.T) {
 		}
 	}
 	if !extStat.ModTime.Before(mtimeBefore) || !extStat.ModTime.After(mtimeAfter) {
-		t.Error("mtime is wrong:", mtimeAfter, "<", extStat.CreatedTime, "<", mtimeBefore)
+		t.Error("mtime is wrong:", mtimeAfter, "<", extStat.ModTime, "<", mtimeBefore)
 	}
 	if !extStat.AccessTime.Before(atimeBefore) || !extStat.AccessTime.After(atimeAfter) {
-		t.Error("atime is wrong:", atimeAfter, "<", extStat.CreatedTime, "<", atimeBefore)
+		t.Error("atime is wrong:", atimeAfter, "<", extStat.AccessTime, "<", atimeBefore)
 	}
 }
