@@ -8,14 +8,14 @@ import (
 	"runtime"
 )
 
+var filePath string = "test.txt"
+
 func TestNew(t *testing.T) {
-	f, err := ioutil.TempFile("", "")
+	err := ioutil.WriteFile(filePath, []byte("hello"), 0666)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	filePath := f.Name()
-	f.Write([]byte("test"))
 	defer os.Remove(filePath)
 	now := time.Now()
 
@@ -25,17 +25,16 @@ func TestNew(t *testing.T) {
 	mtimeAfter := now.Add(time.Second*2)
 	atimeBefore := now.Add(time.Second*7)
 	atimeAfter := now.Add(time.Second*5)
-	f.Close()
 
 	t.Log("wait for changing mtime...")
 	time.Sleep(time.Second * 3)
-	fileForModify, err := os.OpenFile(filePath, os.O_APPEND, 0666)
+	fileForModify, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		fileForModify.Close()
 		t.Error(err)
 		return
 	}
-	fileForModify.Write([]byte("hello world"))
+	fileForModify.Write([]byte(" world"))
 	fileForModify.Close()
 
 	t.Log("wait for changing atime...")
@@ -58,13 +57,13 @@ func TestNew(t *testing.T) {
 	// plan9 doesn't have correct ctime attribute
 	if runtime.GOOS != "plan9" {
 		if !extStat.CreatedTime.Before(ctimeBefore) || !extStat.CreatedTime.After(ctimeAfter) {
-			t.Error("ctime is wrong:", ctimeAfter, "<", extStat.CreatedTime, "<", ctimeBefore)
+			t.Error("ctime is wrong:", ctimeAfter, "<", extStat.CreatedTime, "<", ctimeBefore, "  now: ", now)
 		}
 	}
 	if !extStat.ModTime.Before(mtimeBefore) || !extStat.ModTime.After(mtimeAfter) {
-		t.Error("mtime is wrong:", mtimeAfter, "<", extStat.CreatedTime, "<", mtimeBefore)
+		t.Error("mtime is wrong:", mtimeAfter, "<", extStat.ModTime, "<", mtimeBefore, "  now: ", now)
 	}
 	if !extStat.AccessTime.Before(atimeBefore) || !extStat.AccessTime.After(atimeAfter) {
-		t.Error("atime is wrong:", atimeAfter, "<", extStat.CreatedTime, "<", atimeBefore)
+		t.Error("atime is wrong:", atimeAfter, "<", extStat.AccessTime, "<", atimeBefore, "  now: ", now)
 	}
 }
